@@ -1,0 +1,100 @@
+﻿@using DevExpress.ExpressApp.Blazor.Components.Models
+@using Syncfusion.Blazor;
+@using Syncfusion.Blazor.SfPdfViewer;
+
+@namespace JMTech.ExpressApp.Blazor.Editors.Renderers
+
+<SfPdfViewer2 @ref="@sfPdfViewer2"
+              DocumentPath="@DocumentPath"
+              DownloadFileName="@DownloadFileName"
+              EnableErrorDialog="@EnableErrorDialog"
+              EnableFormFields="@EnableFormFields"
+              Height="@Height"
+              Width="@Width"
+              ZoomValue="@ZoomValue">
+    <PdfViewerToolbarSettings ToolbarItems="@ToolbarItems"></PdfViewerToolbarSettings>
+    <PdfViewerContextMenuSettings EnableContextMenu="@EnableContextMenu"></PdfViewerContextMenuSettings>
+    <PdfViewerEvents DocumentEdited="@DocumentEdited" DocumentLoaded="@DocumentLoaded"></PdfViewerEvents>
+</SfPdfViewer2>
+
+@code {
+    private SfPdfViewer2? sfPdfViewer2;
+
+    [Parameter]
+    public string? DownloadFileName { get; set; }
+
+    [Parameter]
+    public bool EnableFormFields { get; set; } = true;
+
+    [Parameter]
+    public string Height { get; set; } = "100%";
+
+    [Parameter]
+    public string Width { get; set; } = "100%";
+
+    [Parameter]
+    public int ZoomValue { get; set; }
+
+    [Parameter]
+    public bool EnableErrorDialog { get; set; } = true;
+
+    [Parameter]
+    public string? DocumentPath { get; set; }
+
+    [Parameter]
+    public EventCallback<Dictionary<string, string>> FormFieldUpdated { get; set; }
+
+    [Parameter]
+    public EventCallback ExportingFormFieldStarted { get; set; }
+
+    [Parameter]
+    public EventCallback ExportingFormFieldEnded { get; set; }
+
+    [Parameter]
+    public bool EnableContextMenu { get; set; } = true;
+
+    [Parameter]
+    public List<ToolbarItem> ToolbarItems { get; set; } = new List<ToolbarItem>
+    {
+        ToolbarItem.OpenOption,
+        ToolbarItem.PageNavigationTool,
+        ToolbarItem.MagnificationTool,
+        ToolbarItem.SelectionTool,
+        ToolbarItem.PanTool,
+        ToolbarItem.UndoRedoTool,
+        ToolbarItem.CommentTool,
+        ToolbarItem.SubmitForm,
+        ToolbarItem.SearchOption,
+        ToolbarItem.AnnotationEditTool,
+        ToolbarItem.PrintOption,
+        ToolbarItem.DownloadOption
+    };
+
+    [Parameter]
+    public Dictionary<string, string> FormFields { get; set; }
+
+    public async Task DocumentEdited(DocumentEditedEventArgs args)
+    {
+        if (args.EditingAction == EditingAction.FormFieldUpdated)
+        {
+            await ExportingFormFieldStarted.InvokeAsync();
+            var formFields = await sfPdfViewer2!.ExportFormFieldsAsObjectAsync();
+            await ExportingFormFieldEnded.InvokeAsync();
+            if (formFields is not null)
+            {
+                this.FormFields.Clear();
+                foreach (var item in formFields)
+                {
+                    FormFields.Add(item.Key, item.Value);
+                }
+
+                await FormFieldUpdated.InvokeAsync(this.FormFields);
+            }
+        }
+    }
+
+    public async Task DocumentLoaded(LoadEventArgs args)
+    {
+        await sfPdfViewer2!.ImportFormFieldsAsync(this.FormFields);
+    }
+}
