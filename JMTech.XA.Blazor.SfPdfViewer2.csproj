@@ -7,7 +7,7 @@
 	<AssemblyVersion>24.2.8.0</AssemblyVersion>
 	<Version>24.2.8.0</Version>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<RepositoryUrl>https://github.com/farzadjalalimajd/SfPdfViewer2PropertyEditor</RepositoryUrl>
+	<RepositoryUrl>https://github.com/farzadjalalimajd/JMTech.XA.Blazor.SfPdfViewer2</RepositoryUrl>
 	<Title>ExpressApp Blazor SfPdfViewer2PropertyEditor</Title>
 	<Authors>Farzad Jalali Majd</Authors>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
